@@ -1,87 +1,87 @@
-# Informe de Arquitectura de Red Híbrida de C-Project
+# C-Project Hybrid Network Architecture Report
 
-### **Introducción**
+### **Introduction**
 
-Este informe detalla la arquitectura de red híbrida y jerárquica propuesta para el ecosistema C-Project. El objetivo es crear una infraestructura de comunicación resiliente, de acceso libre y energéticamente autónoma. La red se estructura en tres capas, cada una utilizando la tecnología más adecuada para su función específica, optimizando el balance entre ancho de banda, alcance y consumo energético.
+This report details the proposed hybrid and hierarchical network architecture for the C-Project ecosystem. The objective is to create a resilient, free-access, and energetically autonomous communication infrastructure. The network is structured into three layers, each utilizing the most suitable technology for its specific function, optimizing the balance between bandwidth, range, and power consumption.
 
 ---
 
-### **Capa 1: Red de Acceso y Malla Local (El "Cluster")**
+### **Layer 1: Local Access and Mesh Network (The "Cluster")**
 
-Esta es la capa de alta densidad y corto alcance, diseñada para dar servicio a usuarios finales y para que los nodos de una misma zona (ej. un barrio, un pueblo) se comuniquen entre sí.
+This is the high-density, short-range layer, designed to provide service to end-users and to allow nodes within the same area (e.g., a neighborhood, a village) to communicate with each other.
 
-* **Requisitos Técnicos y de Software:**
-    * **Hardware:** El nodo base es una **Raspberry Pi 4** equipada con su tarjeta Wi-Fi integrada o un adaptador USB de buena calidad, conectado a una antena Wi-Fi omnidireccional.
+* **Technical and Software Requirements:**
+    * **Hardware:** The base node is a **Raspberry Pi 4** [cite: C-Project/nodo-main/hardware/readme.md] equipped with its integrated Wi-Fi card or a quality USB adapter, connected to an omnidirectional Wi-Fi antenna.
     * **Software:**
-        1.  **Sistema Operativo:** Una distribución de Linux (ej. Raspberry Pi OS).
-        2.  **Punto de Acceso:** Software como `hostapd` para configurar la interfaz Wi-Fi en modo Access Point (AP), creando la red "C-Project Free Access" a la que se conectan los usuarios.
-        3.  **Servicios de Red:** Un servidor DHCP (`dnsmasq` o similar) para asignar IPs a los usuarios que se conectan.
-        4.  **Enrutamiento Mesh:** Un protocolo de enrutamiento Ad-Hoc como **OLSR (Optimized Link State Routing)** o **BATMAN-adv** para que los nodos del cluster se descubran y enruten paquetes entre sí de forma automática.
+        1.  **Operating System:** A Linux distribution (e.g., Raspberry Pi OS).
+        2.  **Access Point:** Software like `hostapd` to configure the Wi-Fi interface in Access Point (AP) mode, creating the "C-Project Free Access" network for users to connect to.
+        3.  **Network Services:** A DHCP server (`dnsmasq` or similar) to assign IP addresses to connecting users.
+        4.  **Mesh Routing:** An Ad-Hoc routing protocol such as **OLSR (Optimized Link State Routing)** or **BATMAN-adv** to allow nodes within the cluster to automatically discover each other and route packets [cite: C-Project/network-main/README.md].
 
-* **Consumo Eléctrico Estimado:**
-    * Raspberry Pi 4 (carga media): \~5-7 Watts
-    * Adaptador Wi-Fi en modo AP y mesh: \~2-3 Watts
-    * **Total Estimado:** **8 - 10 Watts** de consumo continuo.
-    * **Consumo Diario:** `10W * 24h = 240 Wh/día`.
+* **Estimated Power Consumption:**
+    * Raspberry Pi 4 (medium load): ~5-7 Watts
+    * Wi-Fi adapter in AP and mesh mode: ~2-3 Watts
+    * **Total Estimated:** **8 - 10 Watts** of continuous consumption.
+    * **Daily Consumption:** `10W * 24h = 240 Wh/day`.
 
-* **Solución de Autonomía Propuesta:**
-    * **Almacenamiento:** Para garantizar 3 días de autonomía sin sol, se necesita una capacidad de `240 Wh/día * 3 = 720 Wh`. Una batería de LiFePO4 de **12V y 75Ah (\~900 Wh)** es una elección robusta y segura.
-    * **Generación:** Para reponer 240 Wh con unas 4-5 horas de sol pico, se necesita un mínimo de `240 Wh / 4h = 60W`. Un **panel solar de 100W a 150W** es adecuado para compensar días nublados y pérdidas de eficiencia.
-    * **Componentes:** Un controlador de carga MPPT de 10A o 15A.
-
----
-
-### **Capa 2: Backbone de Mediano y Largo Alcance (Inter-Cluster)**
-
-Esta capa es la columna vertebral que interconecta los diferentes clusters locales, permitiendo la comunicación entre nodos que están a varios kilómetros de distancia.
-
-* **Requisitos Técnicos y de Software:**
-    * **Hardware:** Un nodo C-Project más robusto. Además de su equipo para la malla local, este nodo "gateway" necesita:
-        * **Opción A (Práctica):** Un radio Wi-Fi de alta potencia y una **antena direccional** (Yagi o parabólica) para crear un enlace Punto-a-Punto con otro gateway.
-        * **Opción B (Ideal/Futura):** Un adaptador **Wi-Fi HaLow (802.11ah)**, que ofrece un balance ideal entre rango (1km+), ancho de banda y consumo.
-    * **Software:** Linux con capacidades de enrutamiento avanzadas. Debe ser capaz de gestionar el tráfico entre la interfaz de la red de malla local y la interfaz del enlace backbone.
-
-* **Consumo Eléctrico Estimado:**
-    * Raspberry Pi 4: \~5-7 Watts
-    * Radio Wi-Fi de alta potencia para el backbone: \~5-10 Watts adicionales.
-    * **Total Estimado:** **15 - 20 Watts** de consumo continuo.
-    * **Consumo Diario:** `20W * 24h = 480 Wh/día`.
-
-* **Solución de Autonomía Propuesta:**
-    * **Almacenamiento:** `480 Wh/día * 3 = 1440 Wh`. Se requiere una batería de mayor capacidad, del orden de **12V y 150Ah (\~1800 Wh)**.
-    * **Generación:** `480 Wh / 4h = 120W`. Se necesita un sistema de generación más potente. Un **panel solar de 250W o 300W** sería apropiado.
-    * **Componentes:** Un controlador de carga MPPT de 20A o 30A.
+* **Proposed Autonomy Solution:**
+    * **Storage:** To guarantee 3 days of autonomy without sun, a capacity of `240 Wh/day * 3 = 720 Wh` is needed. A **12V, 75Ah LiFePO4 battery (~900 Wh)** is a robust and safe choice [cite: C-Project/nodo-main/README.md].
+    * **Generation:** To replenish 240 Wh with about 4-5 hours of peak sun, a minimum of `240 Wh / 4h = 60W` is required. A **100W to 150W solar panel** is suitable to compensate for cloudy days and efficiency losses [cite: C-Project/nodo-main/hardware/readme.md].
+    * **Components:** A 10A or 15A MPPT charge controller.
 
 ---
 
-### **Capa 3: Red de Resiliencia y Nodos Aislados**
+### **Layer 2: Medium/Long-Range Backbone (Inter-Cluster)**
 
-Esta es la capa de mínimo consumo y máximo alcance, diseñada para conectar los nodos más remotos y para transmitir datos críticos de bajo volumen, como la telemetría para el Proof-of-Generation.
+This layer is the backbone that interconnects the different local clusters, enabling communication between nodes that are several kilometers apart.
 
-* **Requisitos Técnicos y de Software:**
-    * **Hardware:** Un nodo C-Project con una Raspberry Pi 4 y un **módulo/HAT LoRaWAN** conectado a una antena LoRa omnidireccional.
-    * **Software:** El software del nodo debe incluir la lógica de "traducción" que discutimos: extraer el contenido esencial de un mensaje (ej. una transacción) y encapsularlo en un paquete LoRaWAN optimizado y muy pequeño.
+* **Technical and Software Requirements:**
+    * **Hardware:** A more robust C-Project node. In addition to its local mesh equipment, this "gateway" node needs:
+        * **Option A (Practical):** A high-power Wi-Fi radio and a **directional antenna** (Yagi or parabolic) to create a Point-to-Point link with another gateway.
+        * **Option B (Ideal/Future):** A **Wi-Fi HaLow (802.11ah)** adapter, which offers an ideal balance of range (1km+), bandwidth, and power consumption.
+    * **Software:** Linux with advanced routing capabilities. It must be able to manage traffic between the local mesh interface and the backbone link interface.
 
-* **Consumo Eléctrico Estimado:**
-    * Raspberry Pi 4: \~5-7 Watts
-    * Módulo LoRaWAN (muy bajo consumo, principalmente en espera): \~0.5-1 Watt promedio.
-    * **Total Estimado:** **6 - 8 Watts** de consumo continuo.
-    * **Consumo Diario:** `8W * 24h = 192 Wh/día`.
+* **Estimated Power Consumption:**
+    * Raspberry Pi 4: ~5-7 Watts
+    * High-power Wi-Fi radio for the backbone: ~5-10 additional Watts.
+    * **Total Estimated:** **15 - 20 Watts** of continuous consumption.
+    * **Daily Consumption:** `20W * 24h = 480 Wh/day`.
 
-* **Solución de Autonomía Propuesta:**
-    * **Almacenamiento:** `192 Wh/día * 3 = 576 Wh`. Una batería de **12V y 50-75Ah (\~600-900 Wh)** es más que suficiente.
-    * **Generación:** `192 Wh / 4h = 48W`. Un **panel solar de 100W** proporciona un amplio margen de seguridad.
-    * **Componentes:** Un controlador de carga MPPT de 10A.
+* **Proposed Autonomy Solution:**
+    * **Storage:** `480 Wh/day * 3 = 1440 Wh`. A higher capacity battery is required, on the order of **12V, 150Ah (~1800 Wh)** [cite: C-Project/nodo-main/hardware/readme.md].
+    * **Generation:** `480 Wh / 4h = 120W`. A more powerful generation system is needed. A **250W or 300W solar panel** would be appropriate [cite: C-Project/nodo-main/hardware/readme.md].
+    * **Components:** A 20A or 30A MPPT charge controller.
 
 ---
 
-### **Tabla Resumen de la Arquitectura Híbrida**
+### **Layer 3: Resilience Network and Isolated Nodes**
 
-| Característica | Capa 1: Malla Local | Capa 2: Backbone | Capa 3: Resiliencia (LoRaWAN) |
-| :--- | :--- | :--- | :--- |
-| **Tecnología** | Wi-Fi Mesh (Ad-Hoc) | Wi-Fi Direccional / Wi-Fi HaLow | LoRaWAN |
-| **Alcance** | Corto (\~100-200m entre nodos) | Mediano-Largo (1-10+ km) | Muy Largo (5-15+ km) |
-| **Ancho de Banda** | Alto (Mbps) | Muy Alto (Mbps) | Muy Bajo (Kbps) |
-| **Caso de Uso Principal**| Acceso de usuarios, red local densa | Interconexión de clusters | Nodos aislados, datos de sensores |
-| **Consumo Estimado** | \~10 W | \~20 W | \~8 W |
-| **Autonomía Sugerida** | Panel 150W / Batería 900Wh | Panel 300W / Batería 1800Wh | Panel 100W / Batería 600Wh |
+This is the layer of minimum consumption and maximum range, designed to connect the most remote nodes and to transmit critical, low-volume data, such as telemetry for Proof-of-Generation.
+
+* **Technical and Software Requirements:**
+    * **Hardware:** A C-Project node with a Raspberry Pi 4 and a **LoRaWAN module/HAT** connected to an omnidirectional LoRa antenna.
+    * **Software:** The node's software must include the "translation" logic we discussed: extracting the essential content of a message (e.g., a transaction) and encapsulating it into a highly optimized, small LoRaWAN packet.
+
+* **Estimated Power Consumption:**
+    * Raspberry Pi 4: ~5-7 Watts
+    * LoRaWAN module (very low power, mostly in standby): ~0.5-1 Watt average.
+    * **Total Estimated:** **6 - 8 Watts** of continuous consumption.
+    * **Daily Consumption:** `8W * 24h = 192 Wh/day`.
+
+* **Proposed Autonomy Solution:**
+    * **Storage:** `192 Wh/day * 3 = 576 Wh`. A **12V, 50-75Ah battery (~600-900 Wh)** is more than sufficient [cite: C-Project/nodo-main/README.md].
+    * **Generation:** `192 Wh / 4h = 48W`. A **100W solar panel** provides a wide safety margin [cite: C-Project/nodo-main/hardware/readme.md].
+    * **Components:** A 10A MPPT charge controller.
+
+---
+
+### **Summary Table of the Hybrid Architecture**
+
+| Feature             | Layer 1: Local Mesh         | Layer 2: Backbone                 | Layer 3: Resilience (LoRaWAN) |
+| :------------------ | :-------------------------- | :-------------------------------- | :---------------------------- |
+| **Technology** | Wi-Fi Mesh (Ad-Hoc)         | Directional Wi-Fi / Wi-Fi HaLow   | LoRaWAN                       |
+| **Range** | Short (~100-200m between nodes) | Medium-Long (1-10+ km)            | Very Long (5-15+ km)          |
+| **Bandwidth** | High (Mbps)                 | Very High (Mbps)                  | Very Low (Kbps)               |
+| **Primary Use Case**| User access, dense local network | Interconnecting clusters          | Isolated nodes, sensor data   |
+| **Estimated Power** | ~10 W                       | ~20 W                             | ~8 W                          |
+| **Suggested Autonomy** | 150W Panel / 900Wh Battery | 300W Panel / 1800Wh Battery      | 100W Panel / 600Wh Battery    |
