@@ -1,5 +1,3 @@
-Claro, aquí tienes el informe completo en formato Markdown estándar.
-
 # Informe de Arquitectura de Red Híbrida de C-Project
 
 ### **Introducción**
