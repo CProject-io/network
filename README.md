@@ -25,6 +25,8 @@ This document describes the technical architecture and the philosophy behind the
 - **Platform as a Substrate:** The network is designed so that various blockchains can be deployed and operated on top of it, offering low latency, security, and scalability.
 - **Support for External Projects:** In addition to our internal blockchain, other chains can be integrated by leveraging standardized protocols and adaptive gateways.
 
+> For a detailed explanation of what "free access" means in practice, and how an external blockchain's node can route its own P2P traffic through this network instead of the public Internet, see [Node OS & Parallel Network](https://github.com/CProject-io/LandingDocs/blob/main/%F0%9F%93%81%20docs/os-and-parallel-network.md) in LandingDocs. Note: "Substrate" in this document refers to this network's role as a base transport layer for other blockchains, not the Substrate/Polkadot SDK blockchain framework used to build C-Project's own chain (see `architecture.md` in LandingDocs).
+
 ---
 
 ## 3. Connectivity Infrastructure and Routing
